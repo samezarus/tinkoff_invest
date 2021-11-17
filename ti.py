@@ -56,20 +56,6 @@ class TinkoffInvest:
         self.commission = os.environ['TI_COMMISSION']
         self.headers = {'Authorization': f'Bearer {self.token}'}
 
-    # def get_dates_list(self) -> []:
-    #     result = []
-    #
-    #     date_param = datetime.now(tz=timezone('Europe/Moscow')) - timedelta(days=1)
-    #
-    #     while str(date_param)[0:10] != self.candles_end_date:
-    #         if date_param.strftime("%A") != 'Saturday' and date_param.strftime("%A") != 'Sunday':
-    #             d = str(date_param)[0:10]
-    #             result.append(d)
-    #
-    #         date_param -= timedelta(days=1)
-    #
-    #     return result
-
     def get(self, param: str, data_name: str) -> []:
         """
         Низкоуровнивая функция получения данных из rest api
@@ -87,26 +73,64 @@ class TinkoffInvest:
 
         if status_code == 200:
             j_str = json.loads(res.content)
-            result = j_str['payload'][data_name]
+
+            if data_name != '':
+                result = j_str['payload'][data_name]
+            else:
+                result = j_str['payload']
+
             logger.info(f'Из {url} полученны данные')
         else:
             logger.error(f"Ошибка при получени  данных из {url}, код: {status_code}")
 
         return result
 
-    def get_stocks(self) -> []:
-        # Получение списка инструментов
-
-        return self.get('market/stocks', 'instruments')
-
     def get_portfolio(self) -> []:
-        # Получение портфолио
+        # Получение портфеля клиента
 
         return self.get('portfolio', 'positions')
 
-    def get_candles(self, figi: str, d1: str, d2: str, interval: str) -> {}:
+    def get_portfolio_currencies(self) -> []:
+        # Получение валютных активов клиента
+
+        return self.get('/portfolio/currencies', 'currencies')
+
+    def get_market_stocks(self) -> []:
+        # Получение списка акций
+
+        return self.get('market/stocks', 'instruments')
+
+    def get_market_bonds(self) -> []:
+        # Получение списка облигаций
+
+        return self.get('/market/bonds', 'instruments')
+
+    def get_market_etfs(self) -> []:
+        # Получение списка ETF
+
+        return self.get('/market/etfs', 'instruments')
+
+    def get_market_currencies(self) -> []:
+        # Получение списка валютных пар
+
+        return self.get('/market/currencies', 'instruments')
+
+    def get_market_orderbook(self, figi: str, depth: int) -> []:
         """
-        Функция получает свечу инструмента за промежуток времени с указанным интервалом из rest
+        Получение стакана по FIGI
+
+        :param figi:
+        :param depth: глубина стакана
+        :return:
+        """
+
+        param = f'/market/orderbook?figi={figi}&depth={depth}'
+
+        return self.get(param, '')
+
+    def get_market_candles(self, figi: str, d1: str, d2: str, interval: str) -> []:
+        """
+        Получение исторических свечей по FIGI
 
         :param figi: figi-инструмента
         :param d1: (str) начальная дата среза (2007-07-23T00:00:00)
@@ -134,38 +158,93 @@ class TinkoffInvest:
 
         return self.get(param, data_name)
 
-    def get_candles_by_date(self, figi: str, date_param: str, interval: str) -> {}:
+    def get_market_candles_ext(self, figi: str, date_param: str, interval: str) -> []:
         """
-        Функция получает свечу инструмента за дату(полные сутки) с указанным интервалома
+        Получение исторических свечей по FIGI (усовершенствованная)
 
         :param date_param: (str) Дата получения данных (2021-03-24)
+        :param interval:
         """
 
-        d1 = f'{date_param} 00:00:00'
-        d2 = f'{date_param} 23:59:59'
+        dt = datetime.strptime(date_param, '%Y-%m-%d')
+        weekday = dt.weekday()
 
-        try:
-            result = self.get_candles(figi, d1, d2, interval)['list']
-        except IndexError:
-            result = None
+        if weekday < 5:  # Если дата с понедельника по пятницу
+            d1 = f'{date_param} 00:00:00'
+            d2 = f'{date_param} 23:59:59'
 
-        return result
+            return self.get_market_candles(figi, d1, d2, interval)
+        else:
+            return []
+
+    def get_market_search_by_figi(self, figi: str) -> {}:
+        """
+        Получение инструмента по FIGI
+
+        :param figi:
+        :return:
+        """
+
+        param = f'market/search/by-figi?figi={figi}'
+        return self.get(param, '')
+
+    def get_market_search_by_ticker(self, ticker: str) -> []:
+        """
+        Получение инструмента по тикеру
+
+        :param ticker:
+        :return:
+        """
+
+        param = f'market/search/by-ticker?ticker={ticker}'
+        return self.get(param, 'instruments')
+
 
 ###################################################################################################################
 
 tinvest = TinkoffInvest()
 
-# Инструменты
-# items = tinvest.get_stocks()
-# for item in items:
-#     print(item)
+# --- portfolio ---
 
-# Портфолио
 # items = tinvest.get_portfolio()
 # for item in items:
 #     print(item)
 
-# Свечи инструмента за интервал
-# items = tinvest.get_candles('BBG00HTN2CQ3', '2021-11-16T00:00:00', '2021-11-16T23:59:59', '1min')
+# items = tinvest.get_portfolio_currencies()
 # for item in items:
 #     print(item)
+
+# --- market ---
+
+# items = tinvest.get_market_stocks()
+# for item in items:
+#     print(item)
+
+# items = tinvest.get_market_bonds()
+# for item in items:
+#     print(item)
+
+# items = tinvest.get_market_etfs()
+# for item in items:
+#     print(item)
+
+# items = tinvest.get_market_currencies()
+# for item in items:
+#     print(item)
+
+# res = tinvest.get_market_orderbook('BBG00HTN2CQ3', 20)
+# print(res)
+
+# items = tinvest.get_market_candles('BBG00HTN2CQ3', '2021-11-16T00:00:00', '2021-11-16T23:59:59', '1min')
+# for item in items:
+#     print(item)()
+
+# items = tinvest.get_market_candles_ext('BBG00HTN2CQ3', '2021-11-13', '1min')
+# for item in items:
+#     print(item)
+
+res = tinvest.get_market_search_by_figi('BBG00HTN2CQ3')
+print(res)
+
+res = tinvest.get_market_search_by_ticker('SPCE')
+print(res)
