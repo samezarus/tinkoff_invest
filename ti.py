@@ -199,10 +199,22 @@ class TinkoffInvest:
         param = f'market/search/by-ticker?ticker={ticker}'
         return self.get(param, 'instruments')
 
+    def get_user_accounts(self) -> []:
+        """
+        Получение брокерских счетов клиента
+
+        :return:
+        """
+
+        return self.get('user/accounts', 'accounts')
 
 ###################################################################################################################
 
 tinvest = TinkoffInvest()
+
+# --- orders ---
+
+
 
 # --- portfolio ---
 
@@ -243,8 +255,17 @@ tinvest = TinkoffInvest()
 # for item in items:
 #     print(item)
 
-res = tinvest.get_market_search_by_figi('BBG00HTN2CQ3')
-print(res)
+# res = tinvest.get_market_search_by_figi('BBG00HTN2CQ3')
+# print(res)
 
-res = tinvest.get_market_search_by_ticker('SPCE')
-print(res)
+# res = tinvest.get_market_search_by_ticker('SPCE')
+# print(res)
+
+# --- operations ---
+
+
+# --- user ---
+
+# items = tinvest.get_user_accounts()
+# for item in items:
+#     print(item)
