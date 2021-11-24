@@ -1,3 +1,8 @@
+"""
+Тестовая среда тинькова
+    https://tinkoffcreditsystems.github.io/invest-openapi/swagger-ui
+"""
+
 import os
 from dotenv import load_dotenv
 import logging
@@ -5,7 +10,6 @@ import json
 import requests
 from datetime import datetime, timedelta
 from pytz import timezone
-
 
 
 # Инициализация логера
@@ -37,13 +41,24 @@ def dt_to_url_format(dt_str: str):
     return result
 
 
-def get_data(url: str, headers):
+def get_data(url: str, headers: {}):
     result = None
 
     try:
         result = requests.get(url=url, headers=headers)
     except Exception as e:
-        logger.error(f'Не удалось получить данные из  {url}, ошибка: {e}')
+        logger.error(f'Не удалось получить данные из get-запроса по url "{url}", ошибка: {e}')
+
+    return result
+
+
+def post_data(url: str, headers: {}, data: {}):
+    result = None
+
+    try:
+        result = requests.post(url=url, headers=headers, json=data)
+    except Exception as e:
+        logger.error(f'Не удалось получить данные из post-запроса по url "{url}", ошибка: {e}')
 
     return result
 
@@ -60,7 +75,7 @@ class TinkoffInvest:
         """
         Низкоуровнивая функция получения данных из rest api
 
-        :param param: приставка у урлу сервера
+        :param param: приставка к урлу сервера
         :param data_name: имя ключа для получения данных
         :return: список из словарей
         """
@@ -88,6 +103,20 @@ class TinkoffInvest:
 
         return result
 
+    def post(self, param: str, data: {}):
+        result = None
+
+        url = f'{self.rest}{param}'
+
+        res = post_data(url=url, headers=self.headers, data=data)
+
+        status_code = res.status_code
+        if status_code == 200:
+            j_str = json.loads(res.content)
+            result = j_str
+
+        return result
+
     def get_orders(self) -> []:
         """
         Получение списка активных заявок
@@ -97,6 +126,47 @@ class TinkoffInvest:
 
         param = f'orders?brokerAccountId={self.broker_account_id}'
         return self.get(param, '')
+
+    def post_orders_limit_order(self, figi: str, lots: int, operation: str, price: float) -> bool:
+        """
+        Создание лимитной заявки на покупку или продажу
+
+        :param figi:
+        :param lots: количестов лотов
+        :param operation: Buy(купить), Sell(продать)
+        :param price: цена
+        :return:
+        """
+
+        result = False
+
+        param = f'orders/limit-order?figi={figi}&brokerAccountId={self.broker_account_id}'
+        data = {'lots': lots, 'operation': operation, 'price': price}
+        res = self.post(param, data)
+        if str(res['status']).lower() == 'ok':
+            result = True
+
+        return result
+
+    def post_orders_market_order(self, figi: str, lots: int, operation: str) -> bool:
+        """
+        Создание рыночной заявки (по текущей на рынке цене) на покупку или продажу
+
+        :param figi:
+        :param lots: количестов лотов
+        :param operation: Buy(купить), Sell(продать)
+        :return:
+        """
+
+        result = False
+
+        param = f'orders/limit-order?figi={figi}&brokerAccountId={self.broker_account_id}'
+        data = {'lots': lots, 'operation': operation}
+        res = self.post(param, data)
+        if str(res['status']).lower() == 'ok':
+            result = True
+
+        return result
 
     def get_portfolio(self) -> []:
         # Получение портфеля клиента

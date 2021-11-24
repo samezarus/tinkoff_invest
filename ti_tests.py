@@ -2,11 +2,30 @@ from ti import *
 
 tinvest = TinkoffInvest()
 
+# curl -X POST "https://api-invest.tinkoff.ru/openapi/orders/limit-order?figi=BBG000QCW561&brokerAccountId=2016261337" -H "accept: application/json" -H "Authorization: Bearer t.b5h9uD7QvRvvA3TmY3kTnDesHel1maw-gnVlV89DMkKvjlaMDEBagl9w0iCwg4fyxkuR7ffXqvtyqO11ghNyJA" -H "Content-Type: application/json" -d "{\"lots\":1,\"operation\":\"Buy\",\"price\":2}"
+#               https://api-invest.tinkoff.ru/openapi/orders/limit-order?figi=BBG000QCW561&brokerAccountId=2016261337
+
+
+# figi = 'BBG000QCW561' # veon
+# param = f'orders/limit-order?figi={figi}&brokerAccountId={tinvest.broker_account_id}'
+# data = {'lots': 1, 'operation': 'Buy', 'price': 1}
+# result = tinvest.post(param, data)
+# print(result['status'])
+
+
+
+
 # --- orders ---
 
 # items = tinvest.get_orders()
 # for item in items:
 #     print(item)
+
+# status = tinvest.post_orders_limit_order('BBG000QCW561', 1, 'Buy', 1.1)
+# print(status)
+
+# status = tinvest.post_orders_market_order('BBG000QCW561', 1, 'Buy')
+# print(status)
 
 # --- portfolio ---
 
