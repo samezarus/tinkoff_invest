@@ -4,7 +4,9 @@ tinvest = TinkoffInvest()
 
 # --- orders ---
 
-
+# items = tinvest.get_orders()
+# for item in items:
+#     print(item)
 
 # --- portfolio ---
 

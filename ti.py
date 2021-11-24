@@ -53,6 +53,7 @@ class TinkoffInvest:
         self.rest = os.environ['TI_REST']
         self.token = os.environ['TI_TOKEN']
         self.commission = os.environ['TI_COMMISSION']
+        self.broker_account_id = os.environ['TI_BROKER_ACCAUNT_ID']
         self.headers = {'Authorization': f'Bearer {self.token}'}
 
     def get(self, param: str, data_name: str) -> []:
@@ -86,6 +87,16 @@ class TinkoffInvest:
             logger.error(f"Ошибка при получени  данных из {url}, код: {status_code}")
 
         return result
+
+    def get_orders(self) -> []:
+        """
+        Получение списка активных заявок
+
+        :return:
+        """
+
+        param = f'orders?brokerAccountId={self.broker_account_id}'
+        return self.get(param, '')
 
     def get_portfolio(self) -> []:
         # Получение портфеля клиента
@@ -201,7 +212,7 @@ class TinkoffInvest:
         param = f'market/search/by-ticker?ticker={ticker}'
         return self.get(param, 'instruments')
 
-    def get_operations(self, d1: str, d2: str, figi: str, broker_account_id: str):
+    def get_operations(self, d1: str, d2: str, figi: str):
         """
         Получение списка операций
 
@@ -212,7 +223,7 @@ class TinkoffInvest:
         :return:
         """
 
-        param = f'operations?from={dt_to_url_format(d1)}&to={dt_to_url_format(d2)}&figi={figi}&brokerAccountId={broker_account_id}'
+        param = f'operations?from={dt_to_url_format(d1)}&to={dt_to_url_format(d2)}&figi={figi}&brokerAccountId={self.broker_account_id}'
         return self.get(param, 'operations')
 
     def get_user_accounts(self) -> []:
