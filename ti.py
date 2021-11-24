@@ -127,7 +127,7 @@ class TinkoffInvest:
         param = f'orders?brokerAccountId={self.broker_account_id}'
         return self.get(param, '')
 
-    def post_orders_limit_order(self, figi: str, lots: int, operation: str, price: float) -> bool:
+    def post_orders_limit_order(self, figi: str, lots: int, operation: str, price: float) -> str:
         """
         Создание лимитной заявки на покупку или продажу
 
@@ -135,36 +135,57 @@ class TinkoffInvest:
         :param lots: количестов лотов
         :param operation: Buy(купить), Sell(продать)
         :param price: цена
-        :return:
+        :return: id заявки
         """
 
-        result = False
+        result = ''
 
         param = f'orders/limit-order?figi={figi}&brokerAccountId={self.broker_account_id}'
         data = {'lots': lots, 'operation': operation, 'price': price}
         res = self.post(param, data)
-        if str(res['status']).lower() == 'ok':
-            result = True
+        if res is not None:
+            if str(res['status']).lower() == 'ok':
+                result = res['payload']['orderId']
 
         return result
 
-    def post_orders_market_order(self, figi: str, lots: int, operation: str) -> bool:
+    def post_orders_market_order(self, figi: str, lots: int, operation: str) -> str:
         """
         Создание рыночной заявки (по текущей на рынке цене) на покупку или продажу
 
         :param figi:
         :param lots: количестов лотов
         :param operation: Buy(купить), Sell(продать)
-        :return:
+        :return: id заявки
         """
 
-        result = False
+        result = ''
 
         param = f'orders/limit-order?figi={figi}&brokerAccountId={self.broker_account_id}'
         data = {'lots': lots, 'operation': operation}
         res = self.post(param, data)
-        if str(res['status']).lower() == 'ok':
-            result = True
+        if res is not None:
+            if str(res['status']).lower() == 'ok':
+                result = res['payload']['orderId']
+
+        return result
+
+    def post_orders_cancel(self, order_id: str):
+        """
+        Отмена заявки
+
+        :param order_id: id заявки
+        :return:
+        """
+        result = False
+
+        param = f'orders/cancel?orderId={order_id}&brokerAccountId={self.broker_account_id}'
+        data = {}
+        res = self.post(param, data)
+
+        if res is not None:
+            if str(res['status']).lower() == 'ok':
+                result = True
 
         return result
 

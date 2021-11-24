@@ -6,25 +6,19 @@ tinvest = TinkoffInvest()
 #               https://api-invest.tinkoff.ru/openapi/orders/limit-order?figi=BBG000QCW561&brokerAccountId=2016261337
 
 
-# figi = 'BBG000QCW561' # veon
-# param = f'orders/limit-order?figi={figi}&brokerAccountId={tinvest.broker_account_id}'
-# data = {'lots': 1, 'operation': 'Buy', 'price': 1}
-# result = tinvest.post(param, data)
-# print(result['status'])
-
-
-
-
 # --- orders ---
 
 # items = tinvest.get_orders()
 # for item in items:
 #     print(item)
 
-# status = tinvest.post_orders_limit_order('BBG000QCW561', 1, 'Buy', 1.1)
-# print(status)
+order_id = tinvest.post_orders_limit_order('BBG000+QCW561', 1, 'Buy', 1.1)
+print(order_id) # 333756998350
 
-# status = tinvest.post_orders_market_order('BBG000QCW561', 1, 'Buy')
+# order_id = tinvest.post_orders_market_order('BBG000QCW561', 1, 'Buy')
+# print(order_id)
+
+# status = tinvest.post_orders_cancel('333756998350')
 # print(status)
 
 # --- portfolio ---
