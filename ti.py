@@ -29,10 +29,9 @@ def dt_to_url_format(dt_str: str):
     :return:
     """
 
-    result = f'{str(dt_str)}.283+00:00'
+    result = f'{str(dt_str)}.000+00:00'
     result = result.replace(':', '%3A')
     result = result.replace('+', '%2B')
-
     result = result.replace(' ', 'T')
 
     return result
@@ -43,8 +42,8 @@ def get_data(url: str, headers):
 
     try:
         result = requests.get(url=url, headers=headers)
-    except IndexError:
-        logger.error(f'Не удалось получить данные из  {url}')
+    except Exception as e:
+        logger.error(f'Не удалось получить данные из  {url}, ошибка: {e}')
 
     return result
 
@@ -59,6 +58,7 @@ class TinkoffInvest:
     def get(self, param: str, data_name: str) -> []:
         """
         Низкоуровнивая функция получения данных из rest api
+
         :param param: приставка у урлу сервера
         :param data_name: имя ключа для получения данных
         :return: список из словарей
@@ -68,6 +68,8 @@ class TinkoffInvest:
 
         url = f'{self.rest}{param}'
         res = get_data(url, self.headers)
+
+        #print(res.content.decode())
 
         status_code = res.status_code
 
@@ -199,6 +201,20 @@ class TinkoffInvest:
         param = f'market/search/by-ticker?ticker={ticker}'
         return self.get(param, 'instruments')
 
+    def get_operations(self, d1: str, d2: str, figi: str, broker_account_id: str):
+        """
+        Получение списка операций
+
+        :param d1: (str) начальная дата среза (2007-07-23T00:00:00)
+        :param d2: (str) конечная дата среза (2007-07-23T23:59:59)
+        :param figi: figi-инструмента
+        :param broker_account_id: из get_user_accounts()
+        :return:
+        """
+
+        param = f'operations?from={dt_to_url_format(d1)}&to={dt_to_url_format(d2)}&figi={figi}&brokerAccountId={broker_account_id}'
+        return self.get(param, 'operations')
+
     def get_user_accounts(self) -> []:
         """
         Получение брокерских счетов клиента
@@ -207,65 +223,3 @@ class TinkoffInvest:
         """
 
         return self.get('user/accounts', 'accounts')
-
-###################################################################################################################
-
-tinvest = TinkoffInvest()
-
-# --- orders ---
-
-
-
-# --- portfolio ---
-
-# items = tinvest.get_portfolio()
-# for item in items:
-#     print(item)
-
-# items = tinvest.get_portfolio_currencies()
-# for item in items:
-#     print(item)
-
-# --- market ---
-
-# items = tinvest.get_market_stocks()
-# for item in items:
-#     print(item)
-
-# items = tinvest.get_market_bonds()
-# for item in items:
-#     print(item)
-
-# items = tinvest.get_market_etfs()
-# for item in items:
-#     print(item)
-
-# items = tinvest.get_market_currencies()
-# for item in items:
-#     print(item)
-
-# res = tinvest.get_market_orderbook('BBG00HTN2CQ3', 20)
-# print(res)
-
-# items = tinvest.get_market_candles('BBG00HTN2CQ3', '2021-11-16T00:00:00', '2021-11-16T23:59:59', '1min')
-# for item in items:
-#     print(item)()
-
-# items = tinvest.get_market_candles_ext('BBG00HTN2CQ3', '2021-11-13', '1min')
-# for item in items:
-#     print(item)
-
-# res = tinvest.get_market_search_by_figi('BBG00HTN2CQ3')
-# print(res)
-
-# res = tinvest.get_market_search_by_ticker('SPCE')
-# print(res)
-
-# --- operations ---
-
-
-# --- user ---
-
-# items = tinvest.get_user_accounts()
-# for item in items:
-#     print(item)
