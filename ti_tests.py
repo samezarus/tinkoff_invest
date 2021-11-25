@@ -2,9 +2,6 @@ from ti import *
 
 tinvest = TinkoffInvest()
 
-# curl -X POST "https://api-invest.tinkoff.ru/openapi/orders/limit-order?figi=BBG000QCW561&brokerAccountId=2016261337" -H "accept: application/json" -H "Authorization: Bearer t.b5h9uD7QvRvvA3TmY3kTnDesHel1maw-gnVlV89DMkKvjlaMDEBagl9w0iCwg4fyxkuR7ffXqvtyqO11ghNyJA" -H "Content-Type: application/json" -d "{\"lots\":1,\"operation\":\"Buy\",\"price\":2}"
-#               https://api-invest.tinkoff.ru/openapi/orders/limit-order?figi=BBG000QCW561&brokerAccountId=2016261337
-
 
 # --- orders ---
 
@@ -12,8 +9,8 @@ tinvest = TinkoffInvest()
 # for item in items:
 #     print(item)
 
-order_id = tinvest.post_orders_limit_order('BBG000+QCW561', 1, 'Buy', 1.1)
-print(order_id) # 333756998350
+# order_id = tinvest.post_orders_limit_order('BBG000QCW561', 1, 'Buy', 1.1)
+# print(order_id)  # 333756998350
 
 # order_id = tinvest.post_orders_market_order('BBG000QCW561', 1, 'Buy')
 # print(order_id)
