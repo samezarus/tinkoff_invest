@@ -1,4 +1,4 @@
-from ti import *
+from ti_core import *
 import psycopg2
 import json
 from datetime import datetime, timedelta

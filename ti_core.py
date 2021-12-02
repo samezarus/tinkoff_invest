@@ -13,8 +13,11 @@ from pytz import timezone
 #from urllib import parse
 
 
+app_dir = os.path.abspath(os.path.dirname(__file__))
+
+
 # Инициализация логера
-logger = logging.getLogger('ti.py')
+logger = logging.getLogger('ti_core.py')
 logger.setLevel(logging.INFO)
 fh = logging.FileHandler('log.txt', 'w', 'utf-8')
 formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] [%(message)s]')
