@@ -1,7 +1,7 @@
 """
-Тестовая среда тинькова
-    https://tinkoffcreditsystems.github.io/invest-openapi/swagger-ui
+Движёк манималяции с данными
 """
+
 
 import os
 from dotenv import load_dotenv
@@ -10,6 +10,7 @@ import json
 import requests
 from datetime import datetime, timedelta
 from pytz import timezone
+#from urllib import parse
 
 
 # Инициализация логера
@@ -25,7 +26,7 @@ logger.info('Инициализация модуля class_tinkoff_invest.py')
 load_dotenv()
 
 
-def dt_to_url_format(dt_str: str):
+def dt_to_url_format(dt_str: str) -> str:
     """
     Функция для корректного форматирования ДатыВремя в URL
 
@@ -33,10 +34,12 @@ def dt_to_url_format(dt_str: str):
     :return:
     """
 
-    result = f'{str(dt_str)}.000+00:00'
+    result = f'{str(dt_str)}+00:00'
     result = result.replace(':', '%3A')
     result = result.replace('+', '%2B')
     result = result.replace(' ', 'T')
+
+    #result = parse.quote(result)
 
     return result
 
@@ -84,9 +87,7 @@ class TinkoffInvest:
 
         url = f'{self.rest}{param}'
         res = get_data(url, self.headers)
-
         #print(res.content.decode())
-
         status_code = res.status_code
 
         if status_code == 200:
@@ -114,6 +115,22 @@ class TinkoffInvest:
         if status_code == 200:
             j_str = json.loads(res.content)
             result = j_str
+
+        return result
+
+    def indexing(self, key_name: str, data: []) -> {}:
+        """
+        Из списка делает индексированный словарь по key_name
+
+        :param key_name: имя ключа по которому будет индексироваться список
+        :param data: список
+        :return: {}
+        """
+
+        result = {}
+
+        for item in data:
+            result[item[key_name]] = item
 
         return result
 
@@ -232,7 +249,7 @@ class TinkoffInvest:
 
         return self.get(param, '')
 
-    def get_market_candles(self, figi: str, d1: str, d2: str, interval: str) -> []:
+    def get_market_candles(self, figi: str, d1: str, d2: str, interval: str = '1min') -> []:
         """
         Получение исторических свечей по FIGI
 
@@ -258,11 +275,13 @@ class TinkoffInvest:
         param = f'market/candles?figi={figi}&from={dt_to_url_format(d1)}&to={dt_to_url_format(d2)}' \
             f'&interval={interval}'
 
+        #print(param)
+
         data_name = 'candles'
 
         return self.get(param, data_name)
 
-    def get_market_candles_ext(self, figi: str, date_param: str, interval: str) -> []:
+    def get_market_candles_ext(self, figi: str, date_param: str, interval: str = '1min') -> []:
         """
         Получение исторических свечей по FIGI (усовершенствованная)
 
@@ -271,15 +290,10 @@ class TinkoffInvest:
         """
 
         dt = datetime.strptime(date_param, '%Y-%m-%d')
-        weekday = dt.weekday()
+        d1 = f'{date_param} 00:00:00'
+        d2 = f'{date_param} 23:59:59'
 
-        if weekday < 5:  # Если дата с понедельника по пятницу
-            d1 = f'{date_param} 00:00:00'
-            d2 = f'{date_param} 23:59:59'
-
-            return self.get_market_candles(figi, d1, d2, interval)
-        else:
-            return []
+        return self.get_market_candles(figi, d1, d2, interval)
 
     def get_market_search_by_figi(self, figi: str) -> {}:
         """
@@ -310,7 +324,6 @@ class TinkoffInvest:
         :param d1: (str) начальная дата среза (2007-07-23T00:00:00)
         :param d2: (str) конечная дата среза (2007-07-23T23:59:59)
         :param figi: figi-инструмента
-        :param broker_account_id: из get_user_accounts()
         :return:
         """
 
