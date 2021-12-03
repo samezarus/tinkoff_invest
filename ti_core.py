@@ -13,17 +13,16 @@ from pytz import timezone
 #from urllib import parse
 
 
-app_dir = os.path.abspath(os.path.dirname(__file__))
+APP_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 # Инициализация логера
 logger = logging.getLogger('ti_core.py')
 logger.setLevel(logging.INFO)
-fh = logging.FileHandler(f'{app_dir}/{datetime.now().date()}.txt', 'w', 'utf-8')
+fh = logging.FileHandler(f'{APP_DIR}/{datetime.now().date()}.txt', 'w', 'utf-8')
 formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] [%(message)s]')
 fh.setFormatter(formatter)
 logger.addHandler(fh)
-logger.info('Инициализация модуля class_tinkoff_invest.py')
 
 
 load_dotenv()

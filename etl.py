@@ -4,9 +4,19 @@ import json
 from datetime import datetime, timedelta
 import time
 #from multiprocessing.dummy import Pool
+import os
 
 
 TPREF='ti_schema.'
+APP_DIR = os.path.abspath(os.path.dirname(__file__))
+
+# Инициализация логера
+logger = logging.getLogger('etl.py')
+logger.setLevel(logging.INFO)
+fh = logging.FileHandler(f'{APP_DIR}/{datetime.now().date()}.txt', 'w', 'utf-8')
+formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] [%(message)s]')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 
 # Создаём коннект к базе
@@ -104,6 +114,8 @@ def candles_by_figi_and_date_to_db(figi: str, dt: str):
         query = f"insert into {TPREF}candles_log (figi, dt, candles_count) " \
                 f"values({values})"
         cursor.execute(query)
+
+        logger.info(f'В БД добавлены свечи инструмента "{figi}" за дату "{dt}"')
 
 
 def all_candles_by_date_db(dt: str):
