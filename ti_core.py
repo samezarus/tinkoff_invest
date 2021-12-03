@@ -19,7 +19,7 @@ app_dir = os.path.abspath(os.path.dirname(__file__))
 # Инициализация логера
 logger = logging.getLogger('ti_core.py')
 logger.setLevel(logging.INFO)
-fh = logging.FileHandler('log.txt', 'w', 'utf-8')
+fh = logging.FileHandler(f'{app_dir}/{datetime.now().date()}.txt', 'w', 'utf-8')
 formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] [%(message)s]')
 fh.setFormatter(formatter)
 logger.addHandler(fh)
@@ -101,7 +101,7 @@ class TinkoffInvest:
             else:
                 result = j_str['payload']
 
-            logger.info(f'Из {url} полученны данные')
+            #logger.info(f'Из {url} полученны данные')
         else:
             logger.error(f"Ошибка при получени  данных из {url}, код: {status_code}")
 
