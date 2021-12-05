@@ -156,7 +156,6 @@ def candles_by_figi(figi: str, dt: str):
 #     j = json.load(jsonfile)
 #     print(j)
 
-
 stocks = tinvest.get_market_stocks()
 
 for i in range(300):
