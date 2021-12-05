@@ -9,9 +9,13 @@ import os
 
 TPREF='ti_schema.'
 APP_DIR = os.path.abspath(os.path.dirname(__file__))
+JSONS_DIR = f'{APP_DIR}/_jsons'
+
+if not os.path.isdir(JSONS_DIR):
+    os.makedirs(JSONS_DIR)
 
 # Инициализация логера
-logger = logging.getLogger('etl.py')
+logger = logging.getLogger('extractor_d.py')
 logger.setLevel(logging.INFO)
 fh = logging.FileHandler(f'{APP_DIR}/{datetime.now().date()}.txt', 'w', 'utf-8')
 formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] [%(message)s]')
@@ -130,19 +134,36 @@ def all_candles_by_date_db(dt: str):
         # print(f"\t{figi} ({index + 1} из {ls})")
 
 
+def candles_by_figi(figi: str, dt: str):
+    figi_dir = f'{JSONS_DIR}/{figi}'
+    if not os.path.isdir(figi_dir):
+        os.makedirs(figi_dir)
+
+    figi_file = f'{figi_dir}/{dt}.json'
+
+    if not os.path.isfile(figi_file):
+        with open(figi_file, 'w') as file:
+            candles = tinvest.get_market_candles_ext(figi=figi, date_param=dt)
+            j = json.dumps(candles)
+            file.write(j)
+            logger.info(f'{figi_file}')
+
+
 ##################################################################################################################
 
+#fn = f'{JSONS_DIR}/BBG000BDHD29/2021-12-03.json'
+# with open(fn) as jsonfile:
+#     j = json.load(jsonfile)
+#     print(j)
 
-# stocks_to_db()
 
+stocks = tinvest.get_market_stocks()
 
-#candles_by_figi_and_date_to_db('BBG00HTN2CQ3', dt)
-
-
-dt_list = []
 for i in range(300):
     j = i + 1
     dt = datetime.now() - timedelta(days=j)
+
     if dt.weekday() < 5:
-         # dt_list.append(str(dt)[:10])
-         all_candles_by_date_db(str(dt)[:10])
+        dt = str(dt)[:10]
+        for stock in stocks:
+            candles_by_figi(stock['figi'], dt)
