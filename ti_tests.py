@@ -1,5 +1,6 @@
 from ti_core import *
 
+
 tinvest = TinkoffInvest()
 
 

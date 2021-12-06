@@ -5,7 +5,12 @@ import os
 
 
 APP_DIR = os.path.abspath(os.path.dirname(__file__))
+LOGS_DIR = f'{APP_DIR}/logs'
 JSONS_DIR = f'{APP_DIR}/_jsons'
+
+
+if not os.path.isdir(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
 
 
 if not os.path.isdir(JSONS_DIR):
@@ -15,7 +20,7 @@ if not os.path.isdir(JSONS_DIR):
 # Инициализация логера
 logger = logging.getLogger('extractor_d.py')
 logger.setLevel(logging.INFO)
-fh = logging.FileHandler(f'{APP_DIR}/{datetime.now().date()}.txt', 'a', 'utf-8')
+fh = logging.FileHandler(f'{LOGS_DIR}/{datetime.now().date()}.txt', 'a', 'utf-8')
 formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] [%(message)s]')
 fh.setFormatter(formatter)
 logger.addHandler(fh)

@@ -8,18 +8,21 @@ from dotenv import load_dotenv
 import logging
 import json
 import requests
-from datetime import datetime, timedelta
-from pytz import timezone
-#from urllib import parse
+from datetime import datetime
 
 
 APP_DIR = os.path.abspath(os.path.dirname(__file__))
+LOGS_DIR = f'{APP_DIR}/logs'
+
+
+if not os.path.isdir(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
 
 
 # Инициализация логера
 logger = logging.getLogger('ti_core.py')
 logger.setLevel(logging.INFO)
-fh = logging.FileHandler(f'{APP_DIR}/{datetime.now().date()}.txt', 'w', 'utf-8')
+fh = logging.FileHandler(f'{LOGS_DIR}/{datetime.now().date()}.txt', 'a', 'utf-8')
 formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] [%(message)s]')
 fh.setFormatter(formatter)
 logger.addHandler(fh)
@@ -40,8 +43,6 @@ def dt_to_url_format(dt_str: str) -> str:
     result = result.replace(':', '%3A')
     result = result.replace('+', '%2B')
     result = result.replace(' ', 'T')
-
-    #result = parse.quote(result)
 
     return result
 
@@ -89,7 +90,7 @@ class TinkoffInvest:
 
         url = f'{self.rest}{param}'
         res = get_data(url, self.headers)
-        #print(res.content.decode())
+
         status_code = res.status_code
 
         if status_code == 200:
@@ -99,8 +100,6 @@ class TinkoffInvest:
                 result = j_str['payload'][data_name]
             else:
                 result = j_str['payload']
-
-            #logger.info(f'Из {url} полученны данные')
         else:
             logger.error(f"Ошибка при получени  данных из {url}, код: {status_code}")
 
@@ -272,12 +271,8 @@ class TinkoffInvest:
             }
         """
 
-        # 'figi': 'BBG00HTN2CQ3'
-
         param = f'market/candles?figi={figi}&from={dt_to_url_format(d1)}&to={dt_to_url_format(d2)}' \
             f'&interval={interval}'
-
-        #print(param)
 
         data_name = 'candles'
 
@@ -287,11 +282,11 @@ class TinkoffInvest:
         """
         Получение исторических свечей по FIGI (усовершенствованная)
 
+        :param figi:
         :param date_param: (str) Дата получения данных (2021-03-24)
         :param interval:
         """
 
-        dt = datetime.strptime(date_param, '%Y-%m-%d')
         d1 = f'{date_param} 00:00:00'
         d2 = f'{date_param} 23:59:59'
 
