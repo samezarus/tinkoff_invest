@@ -30,6 +30,14 @@ tinvest = TinkoffInvest()
 
 
 def candles_by_figi(figi: str, dt_param: str):
+    """
+    Функция дампит в json-ы свечи инструмента figi
+
+    :param figi: инструмент
+    :param dt_param: дата в виде строки (2021-12-31)
+    :return:
+    """
+
     figi_dir = f'{JSONS_DIR}/{figi}'
     if not os.path.isdir(figi_dir):
         os.makedirs(figi_dir)
@@ -45,10 +53,15 @@ def candles_by_figi(figi: str, dt_param: str):
                 logger.info(f'{dt_param} - {figi}')
 
 
+# Получить из API список инструментов
 stocks = tinvest.get_market_stocks()
 
 
-for i in range(300):
+history_days = 365  # Количество дней за которые будут получены свечи, отсчёт от текущей даты (текущая не входит)
+
+
+# Проход в истори свечей
+for i in range(history_days):
     j = i + 1
     dt = datetime.now() - timedelta(days=j)
 
