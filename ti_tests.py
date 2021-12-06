@@ -1,4 +1,4 @@
-from ti import *
+from ti_core import *
 
 tinvest = TinkoffInvest()
 
