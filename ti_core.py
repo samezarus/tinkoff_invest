@@ -11,6 +11,9 @@ import requests
 from datetime import datetime
 
 
+load_dotenv()
+
+
 APP_DIR = os.path.abspath(os.path.dirname(__file__))
 LOGS_DIR = f'{APP_DIR}/logs'
 
@@ -26,9 +29,6 @@ fh = logging.FileHandler(f'{LOGS_DIR}/{datetime.now().date()}.txt', 'a', 'utf-8'
 formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] [%(message)s]')
 fh.setFormatter(formatter)
 logger.addHandler(fh)
-
-
-load_dotenv()
 
 
 def dt_to_url_format(dt_str: str) -> str:

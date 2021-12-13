@@ -2,11 +2,16 @@ from ti_core import *
 import json
 from datetime import datetime, timedelta
 import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 
 APP_DIR = os.path.abspath(os.path.dirname(__file__))
 LOGS_DIR = f'{APP_DIR}/logs'
-JSONS_DIR = f'{APP_DIR}/_jsons'
+#JSONS_DIR = f'{APP_DIR}/_jsons'
+JSONS_DIR = os.environ['JSONS_PATH']
 
 
 if not os.path.isdir(LOGS_DIR):
@@ -57,7 +62,7 @@ def candles_by_figi(figi: str, dt_param: str):
 stocks = tinvest.get_market_stocks()
 
 
-history_days = 365  # Количество дней за которые будут получены свечи, отсчёт от текущей даты (текущая не входит)
+history_days = 1000  # Количество дней за которые будут получены свечи, отсчёт от текущей даты (текущая не входит)
 
 
 # Проход в истори свечей
@@ -67,5 +72,8 @@ for i in range(history_days):
 
     if dt.weekday() < 5:
         dt = str(dt)[:10]
+
+        print(dt)
+
         for stock in stocks:
             candles_by_figi(stock['figi'], dt)
