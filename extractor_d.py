@@ -46,16 +46,18 @@ def candles_by_figi(figi: str, dt_param: str):
     figi_dir = f'{JSONS_DIR}/{figi}'
     if not os.path.isdir(figi_dir):
         os.makedirs(figi_dir)
+        logger.info(f'Create folder: {figi_dir}')
 
     figi_file = f'{figi_dir}/{dt_param}.json'
 
     if not os.path.isfile(figi_file):
+        # В любом случае создаём файл. Если данных нет, то он будет пустым, если данные есть, то они поподут в файл
         with open(figi_file, 'w') as file:
             candles = tinvest.get_market_candles_ext(figi=figi, date_param=dt_param)
             if len(candles) > 0:
                 json_object = json.dumps(candles)
                 file.write(json_object)
-                logger.info(f'{dt_param} - {figi}')
+                logger.info(f'On date: {dt_param} add figi: {figi} items couunt: {len(candles)}')
 
 
 # Получить из API список инструментов
@@ -67,13 +69,13 @@ history_days = 1000  # Количество дней за которые буд�
 
 # Проход в истори свечей
 for i in range(history_days):
-    j = i + 1
+    j = i + 2
     dt = datetime.now() - timedelta(days=j)
 
     if dt.weekday() < 5:
         dt = str(dt)[:10]
 
-        print(dt)
+        print(f'{i}: {dt}')
 
         for stock in stocks:
             candles_by_figi(stock['figi'], dt)
